@@ -165,24 +165,37 @@
       .catch(err => console.error(err));
   }
 
-  // Функция для получения случайного индекса
-  function getRandomIndex(length) {
-    return Math.floor(Math.random() * length);
+  // Новая функция перемешивания массива
+  function shuffleArray(array) {
+    let newArray = array.slice();
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
   }
-
-  // Обновление карточки "Сейчас" с использованием загруженных данных из reasons.json
+  // Новые функции обновления карточек (updateSyachas и updatePotom) с логикой рандомизации без повторов
   function updateSyachas() {
     if (window.reasonsData && window.reasonsData.length > 0) {
-      document.getElementById('textSyachas').textContent =
-        window.reasonsData[getRandomIndex(window.reasonsData.length)];
+      if (!window.reasonsOrder || window.reasonsPointer >= window.reasonsData.length) {
+        window.reasonsOrder = shuffleArray([...Array(window.reasonsData.length).keys()]);
+        window.reasonsPointer = 0;
+      }
+      const index = window.reasonsOrder[window.reasonsPointer];
+      document.getElementById('textSyachas').textContent = window.reasonsData[index];
+      window.reasonsPointer++;
     }
   }
 
-  // Обновление карточки "Потом" с использованием загруженных данных из bonuses.json
   function updatePotom() {
     if (window.bonusesData && window.bonusesData.length > 0) {
-      document.getElementById('textPotom').textContent =
-        window.bonusesData[getRandomIndex(window.bonusesData.length)];
+      if (!window.bonusesOrder || window.bonusesPointer >= window.bonusesData.length) {
+        window.bonusesOrder = shuffleArray([...Array(window.bonusesData.length).keys()]);
+        window.bonusesPointer = 0;
+      }
+      const index = window.bonusesOrder[window.bonusesPointer];
+      document.getElementById('textPotom').textContent = window.bonusesData[index];
+      window.bonusesPointer++;
     }
   }
 
