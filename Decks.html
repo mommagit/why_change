@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мотивационное приложение</title>
+  <style>
+    /* Универсальное правило для расчёта размеров */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+    /* Стили вкладок */
+    .tab-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .tab {
+      padding: 10px 20px; /* Параметры отступов вкладки */
+      cursor: pointer;
+      background-color: #ddd;
+      border: 1px solid #ccc;
+      margin: 0 5px;
+      border-radius: 5px 5px 0 0;
+      user-select: none;
+      font-size: 16px;
+    }
+    .tab.active {
+      background-color: #fff;
+      border-bottom: none;
+      font-weight: bold;
+    }
+    /* Контейнеры для колод */
+    .deck-container {
+      display: none;
+      width: 90%;
+      max-width: 400px;
+      margin: 20px auto;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 0 5px 5px 5px;
+      /* Параметр отступа внутри контейнера. Если хочешь, чтобы карточка располагалась ближе к верху,
+         можно уменьшить padding-top. Сейчас сверху padding-top = 20px */
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .deck-container.active {
+      display: block;
+    }
+    /* Карточка – делаем её квадратной и увеличенной по размеру */
+    .card {
+      width: 100%;
+      aspect-ratio: 1;  /* Делает карточку квадратной. Меняй значение, если нужно другое соотношение */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+      padding: 10px;
+      /* УБРАЛИ margin-top, чтобы карточка не "сползала" вниз */
+      /* Если понадобится регулировать вертикальное положение карточки внутри контейнера,
+         можешь добавить margin-top здесь, например: margin-top: 10px; */
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    /* Дизайн для колоды "Сейчас" */
+    .deck-syachas .card {
+      background-color: #f44336; /* КРАСНЫЙ ФОН (можно менять на другой оттенок) */
+      color: #ffffff;           /* БЕЛЫЙ ТЕКСТ */
+    }
+    /* Дизайн для колоды "Потом" */
+    .deck-potom .card {
+      background-color: #8BC34A; /* Тёплый ЛАЙМОВЫЙ ЗЕЛЁНЫЙ ФОН (меняй значение по желанию) */
+      color: #000000;            /* ЧЁРНЫЙ ТЕКСТ */
+    }
+    /* Стили для текста внутри карточки */
+    .card p {
+      text-align: center;
+      font-size: 24px;  /* РАЗМЕР ШРИФТА – можно менять */
+      font-weight: bold; /* ЖИРНЫЙ ШРИФТ */
+      margin: 0;
+    }
+    /* Адаптация для маленьких экранов */
+    @media (max-width: 480px) {
+      .tab {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+      .card p {
+        font-size: 20px; /* Размер шрифта для маленьких экранов */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Мотивация на каждый день</h1>
+
+  <!-- Вкладки -->
+  <div class="tab-container">
+    <div class="tab active" id="tabSyachas">Сейчас</div>
+    <div class="tab" id="tabPotom">Потом</div>
+  </div>
+
+  <!-- Колода "Сейчас" (видна по умолчанию) -->
+  <div class="deck-container deck-syachas active" id="deckSyachas">
+    <div class="card" id="cardSyachas">
+      <p id="textSyachas">Почему я хочу измениться?</p>
+    </div>
+  </div>
+
+  <!-- Колода "Потом" -->
+  <div class="deck-container deck-potom" id="deckPotom">
+    <div class="card" id="cardPotom">
+      <p id="textPotom">Что я получу за это?</p>
+    </div>
+  </div>
+<!-- Разместите этот блок ниже блоков с колодами (после </div> последней колоды) -->
+<div style="text-align: center; margin-top: 20px;">
+  <!-- Кнопка "Что делать". Измените стили здесь по своему вкусу -->
+  <button id="whatToDoButton" style="padding: 10px 20px; font-size: 18px; font-weight: bold;">
+    Что делать
+  </button>
+</div>
+
+<script>
+  // Функция для загрузки данных для колоды "Сейчас" из файла reasons.json
+  function loadReasons() {
+    fetch('reasons.json')
+      .then(response => response.json())
+      .then(data => {
+        // Сохраняем данные в глобальной переменной window.reasonsData
+        window.reasonsData = data;
+        // Выбираем случайное значение для отображения
+        document.getElementById('textSyachas').textContent =
+          data[Math.floor(Math.random() * data.length)];
+      })
+      .catch(err => console.error(err));
+  }
+
+  // Функция для загрузки данных для колоды "Потом" из файла bonuses.json
+  function loadBonuses() {
+    fetch('bonuses.json')
+      .then(response => response.json())
+      .then(data => {
+        // Исправлено: сохраняем данные в window.bonusesData (а не window.reasonsData)
+        window.bonusesData = data;
+        // Выбираем случайное значение для отображения
+        document.getElementById('textPotom').textContent =
+          data[Math.floor(Math.random() * data.length)];
+      })
+      .catch(err => console.error(err));
+  }
+
+  // Функция для получения случайного индекса
+  function getRandomIndex(length) {
+    return Math.floor(Math.random() * length);
+  }
+
+  // Обновление карточки "Сейчас" с использованием загруженных данных из reasons.json
+  function updateSyachas() {
+    if (window.reasonsData && window.reasonsData.length > 0) {
+      document.getElementById('textSyachas').textContent =
+        window.reasonsData[getRandomIndex(window.reasonsData.length)];
+    }
+  }
+
+  // Обновление карточки "Потом" с использованием загруженных данных из bonuses.json
+  function updatePotom() {
+    if (window.bonusesData && window.bonusesData.length > 0) {
+      document.getElementById('textPotom').textContent =
+        window.bonusesData[getRandomIndex(window.bonusesData.length)];
+    }
+  }
+
+  // При загрузке страницы вызываем функции загрузки данных
+  window.addEventListener('load', function() {
+    loadReasons();
+    loadBonuses();
+  });
+
+    // Функция переключения вкладок
+    function switchTab(tabName) {
+      if (tabName === 'syachas') {
+        document.getElementById('deckSyachas').classList.add('active');
+        document.getElementById('deckPotom').classList.remove('active');
+        document.getElementById('tabSyachas').classList.add('active');
+        document.getElementById('tabPotom').classList.remove('active');
+      } else if (tabName === 'potom') {
+        document.getElementById('deckSyachas').classList.remove('active');
+        document.getElementById('deckPotom').classList.add('active');
+        document.getElementById('tabSyachas').classList.remove('active');
+        document.getElementById('tabPotom').classList.add('active');
+      }
+    }
+
+    // После загрузки страницы
+    window.addEventListener('load', function() {
+      // Устанавливаем случайные значения при загрузке
+      updateSyachas();
+      updatePotom();
+
+      // Обработчики для обновления карточек при клике
+      document.getElementById('cardSyachas').addEventListener('click', updateSyachas);
+      document.getElementById('cardPotom').addEventListener('click', updatePotom);
+      // Вставьте этот код внутри window.addEventListener('load', function() { ... });
+      document.getElementById('whatToDoButton').addEventListener('click', function() {
+      // Переход на страницу с описанием опасных ситуаций и советами
+      window.location.href = 'Dangers.html'; // Замените 'dangerous.html' на путь к вашей странице
+      });
+
+      // Обработчики для переключения вкладок
+      document.getElementById('tabSyachas').addEventListener('click', function() {
+        switchTab('syachas');
+      });
+      document.getElementById('tabPotom').addEventListener('click', function() {
+        switchTab('potom');
+      });
+    });
+  </script>
+
+</body>
+</html>

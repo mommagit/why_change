@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Опасные ситуации и советы</title>
+  <style>
+    /* Основные стили страницы */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    /* Контейнер для списка триггеров */
+    #triggersList {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    /* Стили для каждого элемента списка */
+    details {
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #e9e9e9;
+    }
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
+    /* Стили кнопки "К колодам" */
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Опасные ситуации и советы</h1>
+  
+  <!-- Контейнер для динамически загружаемого списка ситуаций и советов -->
+  <div id="triggersList">
+    <!-- Здесь будут добавлены элементы списка -->
+  </div>
+  
+  <!-- Кнопка "К колодам" -->
+  <button id="backButton">К колодам</button>
+  
+  <script>
+    // Функция для загрузки данных из файла triggers.json
+    function loadTriggers() {
+      fetch('triggers.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Ошибка загрузки файла triggers.json');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // data – это массив объектов с полями "ситуация" и "действие"
+          const container = document.getElementById('triggersList');
+          
+          // Для каждого триггера создаём элемент <details>
+          data.forEach(trigger => {
+            const detailsElem = document.createElement('details');
+            const summaryElem = document.createElement('summary');
+            // Параметр: название ситуации
+            summaryElem.textContent = trigger['ситуация'];
+            
+            const adviceElem = document.createElement('p');
+            /* 
+               Здесь заменяем символы переноса строки (\n) на тег <br>.
+               Если в поле "действие" содержится несколько строк,
+               они будут отображаться с разрывами строк.
+            */
+            const adviceText = trigger['действие'].replace(/\n/g, '<br>');
+            adviceElem.innerHTML = adviceText;
+            
+            detailsElem.appendChild(summaryElem);
+            detailsElem.appendChild(adviceElem);
+            container.appendChild(detailsElem);
+          });
+        })
+        .catch(error => {
+          console.error('Ошибка:', error);
+          document.getElementById('triggersList').textContent = 'Не удалось загрузить данные.';
+        });
+    }
+    
+    // Загружаем данные при загрузке страницы
+    window.addEventListener('load', loadTriggers);
+    
+    // Обработчик для кнопки "К колодам"
+    document.getElementById('backButton').addEventListener('click', function() {
+      // Переход на главную страницу с колодами
+      window.location.href = 'Decks.html';
+    });
+  </script>
+</body>
+</html>
